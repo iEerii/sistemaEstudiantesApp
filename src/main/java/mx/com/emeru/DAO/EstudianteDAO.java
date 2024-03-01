@@ -96,6 +96,55 @@ public class EstudianteDAO {
         return false;
     }
 
+    public boolean modificarEstudiante(Estudiante estudiante){
+        PreparedStatement ps;
+        Connection con = getConexion();
+        String sql = "UPDATE estudiante SET nombre=?, apellido=?, telefono=?, " +
+                "email=? WHERE id_estudiante = ?";
+        try{
+            ps =  con.prepareStatement(sql);
+            ps.setString(1, estudiante.getNombre());
+            ps.setString(2, estudiante.getApellido());
+            ps.setString(3, estudiante.getTelefono());
+            ps.setString(4, estudiante.getEmail());
+            ps.setInt(5, estudiante.getIdEstudiante());
+            ps.execute();
+            return true;
+        } catch (Exception e){
+            System.out.println("Error al modificar estudiante: " + e.getMessage());
+        }
+        finally {
+            try{
+                con.close();
+            }catch (Exception e){
+                System.out.println("Error al cerrar la conexión: " + e.getMessage());
+            }
+        }
+        return false;
+    }
+
+    public boolean eliminarEstudiante(Estudiante estudiante){
+        PreparedStatement ps;
+        Connection con = getConexion();
+        String sql = "DELETE FROM estudiante WHERE id_estudiante = ?";
+        try {
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, estudiante.getIdEstudiante());
+            ps.execute();
+            return true;
+        } catch (Exception e){
+            System.out.println("Error al eliminar estudiante: " + e.getMessage());
+        }
+        finally {
+            try {
+                con.close();
+            }catch(Exception e){
+                System.out.println("Error al cerrar la conexión: " + e.getMessage());
+            }
+        }
+        return false;
+    }
+
     //Haciendo pruebas de la aplicacion
     public static void main(String[] args) {
         var estudianteDao = new EstudianteDAO();
@@ -108,6 +157,24 @@ public class EstudianteDAO {
         else
             System.out.println("No se agrego el estudiante: " + nuevoEstudiante);
 
+        //Modificar estudiante existente
+        var estudianteModificar = new Estudiante(2, "Juan Manuel",
+                "Cortes", "5566778899", "manuel@mail.com");
+        var modificado = estudianteDao.modificarEstudiante(estudianteModificar);
+        if(modificado)
+            System.out.println("Estudiante modificado: " + estudianteModificar);
+        else
+            System.out.println("No se pudo modificar los datos del estudiante: " + estudianteModificar);
+
+        //Eliminar estudiante
+        var estudianteEliminar = new Estudiante(5);
+        var eliminado = estudianteDao.eliminarEstudiante(estudianteEliminar);
+        if(eliminado)
+            System.out.println("Se ha eliminado estudiante: " + estudianteEliminar);
+        else
+            System.out.println("No se elimino el estudiante: " + estudianteEliminar);
+
+        //Listar estudiantes
         System.out.println("Listado Estudiantes: ");
         List<Estudiante> estudiantes =estudianteDao.listarEstudiantes();
         estudiantes.forEach(System.out::println);
